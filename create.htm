@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<title>Создать тест</title>
+        <script src="http://mathtest/app/createTest.js"></script>
+	</head>
+	<body>
+		<header></header>
+    	<br>
+		<div class="editblock">
+			<div class="paste-options">
+				<input type="button" value="Поле ввода" class="pasteButton button" what="text"> <input type="button" value="Флажок" class="pasteButton button" what="checkbox">
+				<input type="button" value="Радиокнопка" class="pasteButton button" what="radio"> <input type="button" value="Картинка" class="pasteButton button" what="img"> 
+			</div>
+
+			<div class="name-options">
+				<input id="name" type="text" class="standartinput" placeholder="Название">
+			</div>
+
+			<div class="finale-options container font">
+				<input type="button" style="display: inline; padding: 0 2px 0 2px; margin-top: 20px;" value="Тест доступен всем" class="button edit show-button">
+				<input type="button" style="display: inline; padding: 0 2px 0 2px; margin-top: 20px;" value="Сохранить" class="push button openBut">
+			</div>
+
+
+		</div>
+        <div class="editor">
+			<div class="task-wrap">
+				<div class="task" Contenteditable="true"></div>
+				<div class="delete-task"></div>
+			</div>
+		</div>
+		<input type="button" style="display: inline; padding-top: 0; margin-top: 20px;" value="Добавить задание" class="button openBut add-task">
+	</body>
+</html>

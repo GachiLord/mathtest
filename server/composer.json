@@ -1,0 +1,11 @@
+{
+    "require": {
+        "jasny/auth": "^2.2",
+        "gabordemooij/redbean": "^5.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "app\\": "src"
+        }
+    }
+}

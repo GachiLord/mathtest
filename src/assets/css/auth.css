@@ -1,0 +1,17 @@
+.auth {
+    margin: auto;
+    margin-top: 15px;
+    display: block;
+}
+input{
+    display: block;
+    margin: 3px auto;
+}
+.auth{
+    margin-top: 200px;
+}
+input{
+    text-align: center;
+    display: block;
+    margin: 3px auto;
+}

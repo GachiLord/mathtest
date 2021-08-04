@@ -1,0 +1,23 @@
+.profile{
+    margin: 200px auto;
+    width: 40%;
+    padding: 10px;
+    text-align: center;
+    background: #f2f2f2;
+    background: #f2f2f2;
+    border-radius: 6px;
+    box-shadow: 1px 1px 2px #ddd;
+    transition: 0.1s linear;    
+}
+.profile:hover{
+    -webkit-transform: scale(1.05);
+    -ms-transform: scale(1.05);
+    transform: scale(1.05);
+}
+.profile input{
+    display: block;
+    margin: auto;
+}
+.profile div{
+    margin-top: 5px;
+}

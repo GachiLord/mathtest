@@ -1,0 +1,33 @@
+.test-view{
+    margin: auto;
+    max-width: 1000px;
+    display: flex;
+    flex-wrap:wrap;
+    justify-content: center;
+}
+.content{
+    display: flex;
+    background: #f2f2f2;
+    border-radius: 6px;
+    margin: 10px;
+    box-shadow: 1px 1px 2px #ddd;
+    width: 180px;
+    transition: 0.1s linear;    
+}
+.inner div{
+    padding: 3px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.content .inner{
+    display: inline;
+    margin: auto;
+    overflow: hidden;
+}
+.content:hover{
+    -webkit-transform: scale(1.05);
+    -ms-transform: scale(1.05);
+    transform: scale(1.05);
+}
+
