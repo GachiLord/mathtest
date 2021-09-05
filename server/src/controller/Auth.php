@@ -3,44 +3,38 @@
 namespace app\controller;
 
 
-use app\model\Auth\Authorization;
-use app\model\Auth\Session;
-use app\model\Auth\User;
-use app\model\Auth\UsersManager;
-use app\view\View;
+use app\model\Auth\Auth as Authorization;
+use app\model\Person\User;
 
 
-class Auth {
-    public static function login($param){
-        if ( UsersManager::checkLoginExisting($param['login']) === true){
-            $user = new User($param['login']);
-        }
-        else{
-            View::massage('error','Неверный логин или пароль');
-        }
 
+class Auth extends CONTROLLER
+{
+    protected Authorization $service;
 
-        if ( $user->verify($param['password']) )
-        {
-            Session::start();
-            $_SESSION['user'] = $user;
-
-            View::massage('massage','Добро пожаловать');
-        }
-        else{
-            View::massage('error','Неверный логин или пароль');
-        }
-
+    public function __construct()
+    {
+        parent::__construct();
+        $this->service = Authorization::GetAuthorization();
     }
-    public static function logout(){
-        Session::stop();
 
-        View::massage('massage','До свидания');
+    public function login(){
+        //verify pass & login & auth
+        $user = new User($this->params['login']);
+        if ( $user->VerifyPass($this->params['password']) ) {
+            $auth = new Authorization($user);
+            $auth->remember();
+            $this->view->massage(true, 'Добро пожаловать');
+        }
+        else $this->view->massage(false, '', 'Неверный логин или пароль');
     }
-    public static function register($param){
-        UsersManager::addUser($param['login'], $param['name'], $param['password']);
-        Session::start();
-        $_SESSION['user'] = new User($param['login']);
+
+    public function logout(){
+        $this->service->forget();
+    }
+
+    public function register(){
+        if ( User::create($this->params) ) $this->login();
+        else $this->view->massage(false, '', 'Логин уже существует');
     }
 }
-

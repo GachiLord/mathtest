@@ -9,7 +9,9 @@ import main from './module/main';
     
 
     //register
-    $( () => {
+    $( async () => {
+        
+
         $('.openBut').on('click', async ()=>{
             let response = await post('Auth','register',  JSON.stringify( { login: $('#login').val(), password: $('#password').val(), name:$('#name').val() } ) );
             if ( response.includes('Вы зарегистрированы') ) {
@@ -23,7 +25,7 @@ import main from './module/main';
                 }, 2000);
             }
         } );
-        main();    
+        main(); 
     } );
 
 

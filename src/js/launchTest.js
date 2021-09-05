@@ -9,6 +9,7 @@ import '../assets/css/persons.css'
 import post from './module/post'
 import checkThem from './module/checkboxesChecker'
 import main from './module/main'
+import { async } from 'regenerator-runtime/runtime'
 
 
 
@@ -17,13 +18,18 @@ import main from './module/main'
 
 
 
-//get test from server
-const test = JSON.parse( await post('LaunchedTest', 'getTest', JSON.stringify( { id: document.location.pathname.split("/").pop() } ) ) );
-const Lchtest = new LaunchedTest( test.name, test.creator, test.text, test.date, test.type );
 
+$( async () => {
+    //get test from server
+    let test;
+    try{
+        test = JSON.parse( await post('Test', 'get', JSON.stringify( { publicid: document.location.pathname.split("/").pop() } ) ) );
+    }
+    catch(e){
+        location.href = location.href.replace(`launch/${document.location.pathname.split("/").pop()}`, 'show?page=20');
+    }
+    const Lchtest = new LaunchedTest( test.name, test.OwnerInfo.name, JSON.parse(test.text), test.date, test.type, test.time );
 
-
-$( ()=> {
     //give testname to title
     $('title').append(Lchtest.name);  
     //launch test
@@ -32,10 +38,10 @@ $( ()=> {
 
 } ); 
 
-
-
-$(async () => {
+$( () => {
     main();
 });
+
+
 
 

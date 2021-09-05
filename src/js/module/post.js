@@ -4,7 +4,7 @@ import $ from 'jquery'
 import massage from './massage'
 
 
-export default async function (controller, action, parameters=null){
+export default async function (controller, action, parameters= JSON.stringify([])){
     try{
         return await $.post( url, { controller: controller, action: action, parameters: parameters } )
     }

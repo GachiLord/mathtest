@@ -1,13 +1,14 @@
 import { async } from "regenerator-runtime";
 import $ from 'jquery'
 import post from './post'
+import baseurl from "./baseurl";
 
 export default async function (){
     //menu
     $('header').append( await post('Info','menu') );
     //quit
     $('.quit').on('click', ()=>{
-        location.assign('http://mathtest');
+        location.assign(baseurl);
     });
     //buttonEventListener
     $('[controller]').on('click', async function () {

@@ -1,131 +1,145 @@
 <?php
 
-
 namespace app\view;
 
-
-
-use app\model\Auth\Authorization;
-use app\model\Auth\Session;
-use app\model\Statistic;
-use mysql_xdevapi\Exception;
-use RedBeanPHP\R;
+use app\model\Auth\Auth;
+use app\model\Data\Stat;
+use app\model\Validation;
 
 class View
 {
-    private static function baseurl():string
+
+    protected string $baseurl;
+
+    public function __construct()
     {
-        return ((!empty($_SERVER['HTTPS'])) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'];
+        $this->baseurl = ((!empty($_SERVER['HTTPS'])) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'];
     }
 
-    public static function header(){
-        $baseurl = self::baseurl();
+    public function header()
+    {
         $header = "<div class ='menu'>
 				<div class='links headerLink'>
-					<a href='$baseurl'>Главная</a>
-					<a href='$baseurl/show'>Тесты</a>
-					<a href='$baseurl/create'>Создать тест</a>
-					<a href='$baseurl/contact'>Контакты</a></div>";
+					<a href='$this->baseurl'>Главная</a>
+					<a href='$this->baseurl/show?page=20'>Тесты</a>
+					<a href='$this->baseurl/create'>Создать тест</a>
+					<a href='$this->baseurl/contact'>Контакты</a></div>";
 
-        if ( Authorization::getUserRole() !== 'guest' ){
-            $empty = json_encode('');
-            $user = $_SESSION['user'];
-            echo $header."<div class='AuthInfo'><a href='$baseurl/profile/{$user->login}'>{$user->name}</a>
-            <a href='$baseurl/my'><button class='my edit'>Мои тесты</button></a>&nbsp;<button class='quit' controller='Auth' action='logout' parameters='{$empty}'>Выйти</button></div>";
+        if ( Auth::IsLogIn() ) {
+            $user = Auth::GetPerson();
+            $header.="<div class='AuthInfo'><a href='$this->baseurl/profile/{$user->login}'>{$user->name}</a>
+            <a href='$this->baseurl/my'><button class='my edit'>Мои тесты</button></a>
+            &nbsp;<button class='quit' controller='Auth' action='logout'>Выйти</button></div>";
         }
         else{
-            echo $header."<div class='AuthInfo links'> <a href='$baseurl/login'>Войти</a><a href='$baseurl/register'>Регистрация</a></div>" ;
+            $header.="<div class='AuthInfo links'> <a href='$this->baseurl/login'>Войти</a><a href='$this->baseurl/register'>Регистрация</a></div>";
         }
+
+        echo $header;
     }
 
-    public static function massage(string $type ,string $massage){
-        switch ($type){
-            case 'massage':
+    public function massage(bool $type, string $massage = 'Готово', string $error = 'Неожиданная ошибка')
+    {
+        switch ($type) {
+            case true:
                 echo "<div class='massage'>$massage</div>";
                 break;
-            case 'error':
-                die( "<div class='error'>$massage</div>");
+            case false:
+                die("<div class='error'>$error</div>");
         }
     }
 
-    public static function content(string $type, $bean){
-        $content = $bean;
+    public function content(string $type, $content)
+    {
         $response = [];
-
         foreach ($content as $item){
-            $id = json_encode([ "id"=> $item['id'] ]);
-            switch ($type) {
-                case 'content':
-                    $str = "<div class='content' style='height: 225px'><div class='inner'>";
-                    $login = Authorization::getContentOwner($item, 'login');
-                    $name = Authorization::getContentOwner($item, 'name');
-                    if ( $login === 'guest-p4TYuqcj' ){
-                        $str .= "<div class='name'>Название: {$item['name']}</div><div><a href='launch/{$item['publicid']}'><button class='openBut'>Открыть</button></a></div>";
-                    }
-                    else{
-                        $str .= "<div class='name'>Название: {$item['name']}</div><div class='owner'><a href='profile/{$login}'>Автор: {$name}</a></div><div><a href='launch/{$item['publicid']}'><button class='openBut'>Открыть</button></a></div>";
-                    }
 
-                    if ( (Authorization::getUserRole() === 'admin' || Authorization::getUserRole() === 'moderator') && !Authorization::getOwnerState($item)){
-                        $str .= "<div><button class='delete' controller='Redactor' action='deleteById' parameters=' {$id} '>Удалить</button></div>";
-                    }
-                    if (Authorization::getOwnerState($item)) {
-                        $str .= "<a href='edit/{$item['publicid']}'><button class='edit'>Редактировать</button></a><a href='results/{$item['publicid']}'><button class='edit' style='background:#3048ef; border: 1px solid #3048ef;'>Результаты</button></a><div><button class='delete' controller='Redactor' action='deleteOwn' parameters=' {$id} '>Удалить</button></div>";
-                    }
-                    $response[] = $str."</div></div>";
-                    break;
-
+            switch ($type){
                 case 'profile':
-                    Session::start();
-                    $baseurl = self::baseurl();
-                    $averageScore = Statistic::getAverageScore($item['id']);
-                    $str = "<div class='login'>Имя: {$item['name']}</div><div>Статистика: средний балл - $averageScore</div>";
-
-
-                    if( $item['id'] === $_SESSION['user']->id ){
-                        $str = "<div class='login'>Имя: {$item['name']}</div><div><a href='$baseurl/statistic'>Статистика: средний балл - $averageScore</a></div><div><input class='standartinput password' type='password' placeholder='Введите старый пароль'><input class='standartinput newPass' type='password' placeholder='Введите новый пароль'></div><div><button class='changePass edit'>Изменить пароль</button></div><div><input class='standartinput' type='text' id='name' placeholder='Введите имя'></div><div><button class='changeName edit'>Изменить Имя</button></div><div><button class='delete' controller='Profile' action='deleteOwn' parameters=''>Удалить аккаунт</button></div>";
+                    //stat of user
+                    $AverageScore = 0;
+                    $stats = Stat::read('owner', $item['id']);
+                    if ( !empty($stats) ) {
+                        foreach ( $stats as $value ) { $AverageScore += $value['score']; }
+                        $AverageScore = floor($AverageScore/count($stats));
                     }
-                    if ( Authorization::getUserRole() === 'admin' && $item['login'] !== $_SESSION['user']->login && $item['role'] !== 'admin' ) {
-                        switch ($item['role']){
-                            case 'user':
-                                $str.= "<div><div><input type='radio' name='change' checked='checked' value='user'>Пользователь</div><div><input type='radio' name='change' value='moderator'>Модератор</div><div><button class='edit changeRole' user='{$item['id']}'>Изменить роль</button></div></div><button class='delete' controller='Profile' action='deleteById' parameters='{$id}'>Удалить пользователя</button>";
-                                break;
-                            case 'moderator':
-                                $str.= "<div><div><input type='radio' name='change' value='user'>Пользователь</div><div><input type='radio' checked='checked' name='change' value='moderator'>Модератор</div><div><button class='edit changeRole' user='{$item['id']}'>Изменить роль</button></div></div><button class='delete' controller='Profile' action='deleteById' parameters='{$id}'>Удалить пользователя</button>";
-                                break;
+
+                    //output
+                    $str = "<div class='login'>Имя: {$item['name']}</div><div>Статистика: средний балл - $AverageScore</div>";
+
+                    if ( Auth::IsLogIn() ) {
+                        if ( Auth::GetPerson()->id === $item['id'] ){
+                            $str = "<div class='login'>Имя: {$item['name']}</div><div><a href='$this->baseurl/statistic'>Статистика: средний балл - $AverageScore</a></div>
+                            <input class='standartinput newPass' type='password' placeholder='Новый пароль' autocomplete=''></div>
+                            <input class='standartinput' type='text' id='name' placeholder='Новое имя'></div><div>
+                            <div><input class='standartinput' type='password' id='OldPassword' placeholder='Старый пароль' autocomplete='on'></div>
+                            <div><button class='change edit' login='{$item['login']}'>Изменить аккаунт</button></div>
+                            <div><button class='delete' controller='Profile' action='DeleteOwn'>Удалить аккаунт</button></div>";
+                        }
+                        else if ( Auth::GetPerson()->role === 'Admin' ){
+                            $params = json_encode([ 'login' => $item['login'] ]);
+
+
+                            $IsUser = $item['role'] === 'User' ? "checked='checked'" : '';
+                            $IsModer = $item['role'] === 'Moder' ? "checked='checked'" : '';
+                            $str .= "<div><div><input type='radio' name='change' {$IsUser} value='User'>Пользователь</div>
+                            <div><input type='radio' name='change' {$IsModer} value='Moder'>Модератор</div>";
+
+
+                            $str .= "<div><button class='edit changeRole' user='{$item['login']}'>Изменить роль</button></div>
+                            <div><button class='delete' controller='Profile' action='delete' parameters='{$params}'>Удалить пользователя</button></div>";
                         }
                     }
 
                     $response[] = $str;
                     break;
+                case 'content':
+                    $str = "<div class='content' style='height: 225px'><div class='inner'>";
+                    if ( empty($item['OwnerInfo']['login']) ){
+                        $str .= "<div class='name'>Название: {$item['name']}</div><div><a href='launch/{$item['publicid']}'><button class='openBut'>Открыть</button></a></div>";
+                    }
+                    else{
+                        $str .= "<div class='name'>Название: {$item['name']}</div><div class='owner'><a href='profile/{$item['OwnerInfo']['login']}'>Автор: {$item['OwnerInfo']['name']}</a></div>
+                        <div><a href='launch/{$item['publicid']}'><button class='openBut'>Открыть</button></a></div>";
+                    }
 
-                case 'stats':
-                    $baseurl = self::baseurl();
+                    if ( Auth::IsLogIn() ){
+                        $publicid = json_encode( ['publicid' => $item['publicid'] ]);
+                        $auth = Auth::GetAuthorization();
+                        if ( ($auth->person->role === 'Moder') && !$auth->IsOwn($item) ){
+                            $str .= "<div><button class='delete' controller='Redactor' action='delete' parameters='{$publicid}'>Удалить</button></div>";
+                        }
+                        else if ($auth->IsOwn($item) || $auth->person->role === 'Admin'){
+                            $str .= "<a href='edit/{$item['publicid']}'><button class='edit'>Редактировать</button></a><a href='results/{$item['publicid']}'>
+                            <button class='edit' style='background:#3048ef; border: 1px solid #3048ef;'>Результаты</button></a>
+                            <div><button class='delete' controller='Redactor' action='delete' parameters='{$publicid}'>Удалить</button></div>";
+                        }
+                    }
+
+                    $response[] = $str."</div></div>";
+                    break;
+                case 'TestStat':
                     $str = "";
-                    if ( $item['owner'] == -77 ){
+                    if ( empty($item['owner']) ){
                         $name = $item['guestname'];
                         $str = "<tr><th>{$name}</th><th>{$item['score']}</th></tr>";
                     }
                     else{
-                        $user = R::load('users', $item['owner']);
-                        $str = "<tr><th><a href='$baseurl/profile/{$user['login']}'>{$user['name']}</a></th><th>{$item['score']}</th></tr>";
+                        $user = Validation::GetOwnerInfo([$item]);
+                        $user = $user[0]['OwnerInfo'];
+                        $str = "<tr><th><a href='$this->baseurl/profile/{$user['login']}'>{$user['name']}</a></th><th>{$item['score']}</th></tr>";
                     }
-
-
-
                     $response[] = $str;
                     break;
-                case 'ownStats':
-                    $name = R::findOne( 'content', 'publicid=?', [$item['testid']] );
-                    if( empty($name['name']) ) break;
-                    else $name = $name['name'];
-
-
+                case 'OwnStat':
+                    $name = Validation::GetContentInfo($item['testid'], 'name')['name'];
+                    if ( $name === false ) break;
                     $str = "<tr><th><a href='launch/{$item['testid']}'>{$name}</th><th>{$item['score']}</th></tr>";
 
                     $response[] = $str;
                     break;
             }
+
         }
         echo json_encode($response);
     }

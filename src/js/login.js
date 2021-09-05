@@ -11,7 +11,8 @@ import main from './module/main';
 
 
     //login
-    $( () => {
+    $( async () => {
+        
            $('.openBut').on('click', async ()=>{
                 let response = await post('Auth','login', JSON.stringify( { login: $('#login').val(), password: $('#password').val() } ) );
         
@@ -25,6 +26,6 @@ import main from './module/main';
             };
     } );
  
-        main();
+    main();
     } )
 

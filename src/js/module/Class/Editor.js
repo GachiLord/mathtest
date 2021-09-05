@@ -5,7 +5,7 @@ import post from '../post';
 import { async } from 'regenerator-runtime';
 import close from '../../../assets/img/close.png'
 import checkThem from '../checkboxesChecker'
-
+import baseurl from '../baseurl';
 
 
 export default class Editor {
@@ -34,7 +34,7 @@ export default class Editor {
     async create(test){
         //some ajax
         $('.question').each( function(){ getVal($(this), ''); } );
-        location.replace( await post('Redactor', 'create', JSON.stringify( test ) ) ); 
+        location.replace( 'edit/' + await post('Redactor', 'create', JSON.stringify( test ) ) ); 
     }
 
     serialize(){
@@ -83,10 +83,10 @@ export default class Editor {
         //get data
         let test;
         try{
-            test = JSON.parse( await post( 'Redactor', 'getOwn', JSON.stringify( { id: document.location.pathname.split("/").pop() }) ) );
+            test = JSON.parse( await post( 'Redactor', 'get', JSON.stringify( { publicid: document.location.pathname.split("/").pop() } ) ) );
         }
         catch{
-            location.assign('http://mathtest/create');
+            location.assign(baseurl + '/create');
         }
         test.answers = JSON.parse(test.answers);
         test.text = JSON.parse(test.text);
@@ -95,7 +95,7 @@ export default class Editor {
         $('title').html('Редактировать тест');
         //set properties at editor:
         //toggle
-        this.toggle = test.show;
+        this.toggle = test.visibility;
         if ( this.toggle == false ){
             $('.show-button').val('Тест доступен по ссылке');
         }
@@ -104,9 +104,10 @@ export default class Editor {
         }
         //name
         $('#name').val(test.name);
+        $('#time').val(test.time);
         $('.task-wrap').detach();
         //id
-        this.updateId = test.id
+        this.updateId = test.publicid;
         //text
         test.text.forEach( (item,index) => {
             $('.editor').append(`<div taskid="${index}" class="task-wrap">${item}<div class="delete-task"></div></div>`);
@@ -118,7 +119,7 @@ export default class Editor {
             });
         });
         //add open button
-        $('.finale-options').append(`<a href="http://${location.host}/launch/${test.publicid}"><input type="button"
+        $('.finale-options').append(`<a href="${baseurl}/launch/${test.publicid}"><input type="button"
         style="display: inline; padding: 0 2px 0 2px; margin-top: 20px; background:#3048ef; border: 1px solid #3048ef;" value="Открыть" class="button openBut"></a>`);
         //answers
         this.pasteAnswers(test.answers);
@@ -129,7 +130,7 @@ export default class Editor {
         let answers = this.getAnswers();
         $('.question').each( function(){ getVal($(this), ''); } );
 
-        $('body').prepend( await post( 'Redactor', 'changeOwn', JSON.stringify( { content: { name: $('#name').val(), show: this.toggle, text: this.getText(), answers: answers}, id: this.updateId } ) )  );
+        $('body').prepend( await post( 'Redactor', 'edit', JSON.stringify( { name: $('#name').val(), show: this.toggle, text: this.getText(), answers: answers, publicid: this.updateId, time: $('#time').val() } ) )  );
         setTimeout(() => {
             $('.error').animate({opacity:0})
             $('.massage').animate({opacity:0})

@@ -1,37 +1,32 @@
 <?php
 
-
 namespace app\controller;
 
+use app\model\Data\Article;
+use app\model\Data\Test;
 
-use app\model\Auth\Authorization;
-use app\model\ContentManager;
-use app\view\View;
-use RedBeanPHP\R as R;
-
-
-class Redactor
+class Redactor extends CONTROLLER
 {
-    public static function create($arr){
-        ContentManager::create($arr);
+    public function create()
+    {
+        echo Article::create($this->params);
     }
-    public static function getOwn($arr){
-        Authorization::CheckOwner( R::findOne('content', 'publicid=?', [$arr['id']] ) );
-        echo json_encode( ContentManager::read( $arr['id'] ) );
+
+    public function get()
+    {
+        foreach ( Test::ReadOwn('publicid', [$this->params['publicid']]) as $item ) echo json_encode($item);
+
     }
-    public static function deleteOwn($arr){
-        Authorization::CheckOwner( R::load('content', $arr['id']) );
-        ContentManager::delete($arr['id']);
-        View::massage('massage','Пост удален');
+
+    public function edit()
+    {
+        $content = new Article('publicid', $this->params['publicid']);
+        $this->view->massage( $content->update($this->params) );
     }
-    public static function deleteById($arr){
-        Authorization::CheckAccess(['admin','moderator']);
-        ContentManager::delete($arr['id']);
-        View::massage('massage','Пост удален');
-    }
-    public static function changeOwn($arr){
-        Authorization::CheckOwner( R::load('content',$arr['id']) );
-        ContentManager::update($arr['content'],$arr['id']);
-        View::massage('massage','Пост изменен');
+
+    public function delete()
+    {
+        $content = new Article('publicid', $this->params['publicid']);
+        $this->view->massage($content->delete());
     }
 }

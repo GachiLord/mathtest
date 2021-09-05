@@ -12,8 +12,5 @@ import main from './module/main'
 
 
 $(async () => {
-        
-        //test view
-        $('.test-view').append( JSON.parse ( await post('Get','getContentAcPublicId', JSON.stringify( {id:[100]}) ) ) );
         main();
 } );

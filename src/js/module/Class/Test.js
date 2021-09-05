@@ -7,6 +7,7 @@ export default class Test {
         this.text = null;
         this.answers = [];
         this.type = 'test';
+        this.time = null;
     }
 }
 

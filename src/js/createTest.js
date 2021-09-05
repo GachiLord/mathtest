@@ -21,6 +21,8 @@ import massage from './module/massage'
 const editor = new Editor($('.editor')); 
 
 
+
+
     $( ()=>{
         //close button
         $('.delete-task').css({'background-image':`url(${close})`});
@@ -37,7 +39,7 @@ const editor = new Editor($('.editor'));
         });
         //make focus on task
         $('.editblock').on('mousedown', ()=> { return false; });
-        $('#name').on('click', function (){ $(this).trigger('focus'); });
+        $('.standartinput').on('click', function (){ $(this).trigger('focus'); });
         //paste in caret`s position
         $('body').on('paste', '.editor', function(e){
             e.preventDefault();
@@ -85,6 +87,7 @@ const editor = new Editor($('.editor'));
                 test.answers = editor.getAnswers();
                 test.text = editor.getText();
                 test.show = editor.toggle;
+                test.time = $('#time').val();
                 //sending test
                 editor.create(test);
             }
@@ -106,7 +109,6 @@ const editor = new Editor($('.editor'));
         }
     } );
 
-    
-$(async () => {
-    main();
-} );
+    $( () => {
+        main();
+    } );

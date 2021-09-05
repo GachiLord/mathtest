@@ -10,10 +10,11 @@ import post from './module/post'
 
 
 $( ()=>{
+    main();
+
+    
     $('.mail').prepend(`<img src="${mail}" width="40px">`);
     $('.phone').prepend(`<img src="${phone}" width="40px">`);
 
 
-
-    main();
 } );

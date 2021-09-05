@@ -8,39 +8,50 @@ import showpersons from '../showPersons'
 import getCheckState from '../getCheckState'
 import post from '../post'
 import '../../../assets/css/finish.css'
+import baseurl from '../baseurl'
 
 
 export default class LaunchedTest {
-    constructor(name, creator,test, date, type){
+    constructor(name, creator,test, date, type, time){
         this.testID = document.location.pathname.split("/").pop();
-        if ( localStorage.getItem(this.testID) == undefined ) localStorage.setItem(this.testID, JSON.stringify({ answers:[], switch: 0}) ); 
+        if ( localStorage.getItem(this.testID) == undefined ) localStorage.setItem(this.testID, JSON.stringify({ answers:[], switch: 0, time: time}) ); 
+        else if ( JSON.parse( localStorage.getItem(this.testID) ).time == undefined ) localStorage.setItem(this.testID, JSON.stringify({ answers:[], switch: 0, time: time}) );
 
         this.type = type;
         this.creator = creator;
         this.name = name;
         this.test = test;
         this.date = date;
+        this.time = time != null ? JSON.parse( localStorage.getItem( this.testID ) ).time : time;
         this.switch = JSON.parse( localStorage.getItem( this.testID ) ).switch;
         this.answers = JSON.parse( localStorage.getItem( this.testID ) ).answers;
     }
 
     render(){
         //info rendeting
-        $('.info').append('Дата: ' + this.date + '. Название: ' + this.name + '. Автор: ' + this.creator);
+        if ( this.time != undefined && this.type != 'Article' ) $('.info').append('Дата: ' + this.date + '. Название: ' + this.name + '. Автор: ' + this.creator + '. Оставшееся время: ' + this.time + ' мин.');
+        else $('.info').append('Дата: ' + this.date + '. Название: ' + this.name + '. Автор: ' + this.creator);
         
         //test rendering
         $('.launchTest').append(this.test[this.switch]);
         //options
         this.load();
-        if ( this.type !== 'article') this.switchTask();
-        else $('.launchTest').css('margin-top', 0);
+        if ( this.type === 'article') $('.launchTest').css('margin-top', 0);
+        this.switchTask();
         this.finishtest();
         this.store();
+        this.timer();
 
         //select text in input
         $('.question').on('focus',function(){
             $(this).trigger('select');
-        })        
+        })
+        
+        
+        if ( this.time <= 0 && this.time != null ) {
+            $('.launchTest').html('');
+            $('.launchTest').append(`<div class="finish-block">Время вышло<div>`);
+        }
     }
 
     finishtest(){
@@ -48,15 +59,15 @@ export default class LaunchedTest {
         $('.finish').on('click', async () =>{
             $('.launchTest').html('');
             let name = localStorage.getItem('guestName');
-            if ( await post('Info', 'authState' ) === 'notAuthed'){
-                if ( name == undefined ){
-                    localStorage.setItem('guestName', prompt('Введите имя, чтобы автор теста знал, кто его прошел. Также вы можете зарегистрироваться для сохранения статистики, редактирования своих тестов.') );
+            if ( await post('Info', 'AuthState' ) === 'NotAuthed'){
+                if ( name == undefined || name == null || name == 'null' || name == 'undefined' ){
+                    localStorage.setItem('guestName', prompt('Введите имя, если хотите, чтобы автор теста знал, кто его прошел. Также вы можете зарегистрироваться для сохранения статистики, редактирования своих тестов.') );
                     name = localStorage.getItem('guestName');
                 } 
             }
 
             $('.launchTest').append(`<div class="finish-block">Твой балл 
-            ${await post('LaunchedTest', 'finishTest', JSON.stringify( {answers: this.answers, id: this.testID, name: name} ))} из 100
+            ${await post('Test', 'score', JSON.stringify( {answers: this.answers, publicid: this.testID, name: name} ))} из 100
             </div>`)
         } );
        
@@ -64,6 +75,20 @@ export default class LaunchedTest {
 
     checkAnswer(){
         //ajax
+    }
+
+    timer(){
+        if ( this.time != undefined && this.type != 'Article' ) setInterval(() => {
+            this.time = Number(this.time) - 1; 
+            let load = JSON.parse(localStorage.getItem(this.testID));
+            load.time = this.time;
+            localStorage.setItem(this.testID, JSON.stringify(load));
+            $('.info').html('');
+            $('.info').append('Дата: ' + this.date + '. Название: ' + this.name + '. Автор: ' + this.creator + '. Оставшееся время: ' + this.time + ' мин.');
+            if ( this.time <= 0 ) {
+                $('.finish').trigger('click');
+            }
+        }, 60000);
     }
 
     store(){
@@ -88,7 +113,7 @@ export default class LaunchedTest {
             input(userAnswer);
 
             //store answers && switch
-            localStorage.setItem(testID, JSON.stringify({ answers: answersVal, switch: STswitchVal}))
+            localStorage.setItem(testID, JSON.stringify({ answers: answersVal, switch: STswitchVal, time: this.time}))
         }
 
         
@@ -120,11 +145,11 @@ export default class LaunchedTest {
         }
         else if ( this.switch + 1 === this.test.length && this.switch !== 0 )
         {
-            $('.launchTest').append(`<button class="openBut previos switch">Предыдущее задание</button><button class="openBut switch finish">Завершить тест</button>`);
+            if ( this.type !== 'article' ) $('.launchTest').append(`<button class="openBut previos switch">Предыдущее задание</button><button class="openBut switch finish">Завершить тест</button>`);
         }
         else if ( this.switch === 0 && this.switch + 1 === this.test.length )
         {
-            $('.launchTest').append(`<button class="openBut switch finish">Завершить тест</button>`);
+            if ( this.type !== 'article' ) $('.launchTest').append(`<button class="openBut switch finish">Завершить тест</button>`);
         }
         else
         {

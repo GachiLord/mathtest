@@ -1,0 +1,1 @@
+export default `${location.protocol}//${location.host}`;

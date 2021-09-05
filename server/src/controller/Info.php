@@ -1,18 +1,22 @@
 <?php
 
-
 namespace app\controller;
 
+use app\model\Data\Article;
+use app\model\Data\Test;
 
-use app\model\Auth\Authorization;
-use app\view\View;
-
-class Info
+class Info extends CONTROLLER
 {
-    public static function menu(){
-        View::header();
+    public function menu()
+    {
+        $this->view->header();
     }
-    public static function authState(){
-        return Authorization::isLogIn();
+    public function AuthState()
+    {
+        echo \app\model\Auth\Auth::IsLogIn() ? 'authed' : 'NotAuthed';
+    }
+    public function GetTestCount()
+    {
+        echo Article::GetArticleCount();
     }
 }
