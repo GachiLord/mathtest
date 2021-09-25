@@ -1,6 +1,7 @@
-export default function(seconds){
-    let minutes = (seconds/60) >= 1 ? seconds/60 : 0;
-    let seconds = minutes === 0 ? seconds : (minutes * 60) - seconds;
+export default function(input){
+    let minutes = Math.floor( (input/60) >= 1 ? input/60 : 0 );
+    let seconds = minutes === 0 ? input : input - (minutes * 60);
 
-    return `Минут: ${minutes}, Секунд:${seconds}`;
+
+    return `${minutes} минут ${seconds} секунд`;
 }

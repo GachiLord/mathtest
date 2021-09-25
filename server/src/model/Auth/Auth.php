@@ -3,6 +3,7 @@
 namespace app\model\Auth;
 
 
+use app\model\Data\Timer;
 use app\model\Person\Guest;
 use app\model\Person\User;
 use app\view\View;
@@ -80,6 +81,15 @@ class Auth
     {
         if ( empty($content['owner']) ) return false;
         return $this->person->id === $content['owner'];
+    }
+    public function CreateTimerOrDie(int $publicid, $MaxTime)
+    {
+            if ( !self::IsLogIn() ) die(json_encode(['NotAuthed']));
+            if ( !Timer::IsBegan($publicid) ) Timer::create(['publicid'=>$publicid, 'time'=>$MaxTime]);
+            else {
+                $timer = new Timer($publicid);
+                if ( $timer->IsLate() ) die(json_encode(['late']));
+        }
     }
 
 }

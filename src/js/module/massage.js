@@ -2,7 +2,9 @@ import $ from 'jquery'
 
 
 export default function (massage, type = 'massage'){
-    $('body').prepend(`<div class="${type}">${massage}</div>`);
+    let output = `<div class="${type}">${massage}</div>`;
+    if ( /div/.test(massage) ) output = massage; 
+    $('body').prepend(output);
     setTimeout(() => {
         $('.error').animate({opacity:0})
         $('.massage').animate({opacity:0})

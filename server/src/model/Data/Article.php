@@ -15,6 +15,7 @@ class Article extends DATA
     protected string $name;
     protected int $PublicId;
     protected string $type;
+    protected int|null $time;
 
     public function __construct($property, $value)
     {
@@ -25,6 +26,7 @@ class Article extends DATA
         $this->name = $this->table['name'];
         $this->PublicId = $this->table['publicid'];
         $this->type = $this->table['type'];
+        $this->time = $this->table['time'];
     }
 
     static public function create(array $arr): int
@@ -66,6 +68,15 @@ class Article extends DATA
     {
         $bd = new BD('content');
         return $bd->GetRowCount('visibility = 1');
+    }
+
+    public function UpdatePublicid():bool|int
+    {
+        $auth = Auth::GetAuthorization();
+        if ( $auth->IsOwn(!$auth->IsOwn($this->table) && $auth->person->role !== 'Admin') ) return false;
+        $id = $this->GetPublicId();
+        $this->storage->change($this->id, 'publicid', $id);
+        return $id;
     }
 
     public function update(array $arr): bool

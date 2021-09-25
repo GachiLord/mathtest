@@ -85,6 +85,17 @@ class BD implements BdStorage
         }
         return true;
     }
+    public function DeleteAll(array $ids):bool
+    {
+        try{
+            $beans = R::loadAll($this->table, $ids);
+            foreach ( $beans as $item ) R::trash($item);
+        }
+        catch (\Exception){
+            return false;
+        }
+        return true;
+    }
 
     public function RowExists(string $property, string $value): bool
     {

@@ -6,6 +6,7 @@ import { async } from 'regenerator-runtime';
 import close from '../../../assets/img/close.png'
 import checkThem from '../checkboxesChecker'
 import baseurl from '../baseurl';
+import massage from '../massage';
 
 
 export default class Editor {
@@ -119,11 +120,14 @@ export default class Editor {
             });
         });
         //add open button
-        $('.finale-options').append(`<a href="${baseurl}/launch/${test.publicid}"><input type="button"
+        $('.finale-options').append(`<input type="button" style="display: inline;padding: 0 2px 0 2px;margin-top: 20px;background: orange;border: orange;" value="Удалить запись о прохождении теста пользователями" class="edit button clear-timers openBut"><a href="${baseurl}/launch/${test.publicid}"><input type="button"
         style="display: inline; padding: 0 2px 0 2px; margin-top: 20px; background:#3048ef; border: 1px solid #3048ef;" value="Открыть" class="button openBut"></a>`);
         //answers
         this.pasteAnswers(test.answers);
-        
+        //clear timers
+        $('.clear-timers').on('click', async () => {
+            massage( await post('Redactor', 'ClearTimers', JSON.stringify( {publicid: this.updateId} ) ) ); 
+        });
 
     }
     async update(){

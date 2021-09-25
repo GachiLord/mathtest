@@ -16,13 +16,19 @@ class View
         $this->baseurl = ((!empty($_SERVER['HTTPS'])) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'];
     }
 
+    protected function GetDeviceType():string
+    {
+        return preg_match('/Android|webOS|iPhone|iPad|iPod|BlackBerry|BB|PlayBook|IEMobile|Windows Phone|Kindle|Silk|Opera Mini/i', $_SERVER['HTTP_USER_AGENT']) ? 'mobile' : 'desktop';
+    }
+
     public function header()
     {
+        $CreateButton = $this->GetDeviceType() === 'desktop' ? "<a href='$this->baseurl/create'>Создать тест</a>" : "";
         $header = "<div class ='menu'>
 				<div class='links headerLink'>
 					<a href='$this->baseurl'>Главная</a>
 					<a href='$this->baseurl/show?page=20'>Тесты</a>
-					<a href='$this->baseurl/create'>Создать тест</a>
+					$CreateButton
 					<a href='$this->baseurl/contact'>Контакты</a></div>";
 
         if ( Auth::IsLogIn() ) {
@@ -35,7 +41,7 @@ class View
             $header.="<div class='AuthInfo links'> <a href='$this->baseurl/login'>Войти</a><a href='$this->baseurl/register'>Регистрация</a></div>";
         }
 
-        echo $header;
+        echo "<div style='max-width: 1000px;margin: auto;'>". $header. "</div>";
     }
 
     public function massage(bool $type, string $massage = 'Готово', string $error = 'Неожиданная ошибка')

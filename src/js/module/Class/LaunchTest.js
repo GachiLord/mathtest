@@ -9,30 +9,35 @@ import getCheckState from '../getCheckState'
 import post from '../post'
 import '../../../assets/css/finish.css'
 import baseurl from '../baseurl'
+import IsMobile from '../IsMobile'
+import GetMinutes from '../GetMinutes'
 
 
 export default class LaunchedTest {
-    constructor(name, creator,test, date, type, time){
+    constructor(name, creator, test, date, type, time){
         this.testID = document.location.pathname.split("/").pop();
-        if ( localStorage.getItem(this.testID) == undefined ) localStorage.setItem(this.testID, JSON.stringify({ answers:[], switch: 0, time: time}) ); 
-        else if ( JSON.parse( localStorage.getItem(this.testID) ).time == undefined ) localStorage.setItem(this.testID, JSON.stringify({ answers:[], switch: 0, time: time}) );
+        let storage = JSON.parse(localStorage.getItem(this.testID));
+        if ( storage == undefined ) localStorage.setItem(this.testID, JSON.stringify({ answers:[], switch: 0}) ); 
 
+
+        this.time = time < 0 ? 0 : time;
         this.type = type;
         this.creator = creator;
         this.name = name;
         this.test = test;
         this.date = date;
-        this.time = time != null ? JSON.parse( localStorage.getItem( this.testID ) ).time : time;
+        
         this.switch = JSON.parse( localStorage.getItem( this.testID ) ).switch;
         this.answers = JSON.parse( localStorage.getItem( this.testID ) ).answers;
     }
 
     render(){
         //info rendeting
-        if ( this.time != undefined && this.type != 'Article' ) $('.info').append('Дата: ' + this.date + '. Название: ' + this.name + '. Автор: ' + this.creator + '. Оставшееся время: ' + this.time + ' мин.');
+        if ( this.time != undefined && this.type != 'Article' ) $('.info').append('Дата: ' + this.date + '. Название: ' + this.name + '. Автор: ' + this.creator + '. Оставшееся время: ' + GetMinutes(this.time) );
         else $('.info').append('Дата: ' + this.date + '. Название: ' + this.name + '. Автор: ' + this.creator);
         
         //test rendering
+        if (IsMobile() === true) $('.launchTest').css('margin-top',10);
         $('.launchTest').append(this.test[this.switch]);
         //options
         this.load();
@@ -40,7 +45,6 @@ export default class LaunchedTest {
         this.switchTask();
         this.finishtest();
         this.store();
-        this.timer();
 
         //select text in input
         $('.question').on('focus',function(){
@@ -65,9 +69,10 @@ export default class LaunchedTest {
                     name = localStorage.getItem('guestName');
                 } 
             }
-
+            let response = await post('Test', 'score', JSON.stringify( {answers: this.answers, publicid: this.testID, name: name} ));
+            if ( response === 'late' ) $('.launchTest').append(`<div class="finish-block">Время вышло<div>`);
             $('.launchTest').append(`<div class="finish-block">Твой балл 
-            ${await post('Test', 'score', JSON.stringify( {answers: this.answers, publicid: this.testID, name: name} ))} из 100
+            ${response} из 100
             </div>`)
         } );
        
@@ -78,17 +83,21 @@ export default class LaunchedTest {
     }
 
     timer(){
-        if ( this.time != undefined && this.type != 'Article' ) setInterval(() => {
-            this.time = Number(this.time) - 1; 
-            let load = JSON.parse(localStorage.getItem(this.testID));
-            load.time = this.time;
-            localStorage.setItem(this.testID, JSON.stringify(load));
-            $('.info').html('');
-            $('.info').append('Дата: ' + this.date + '. Название: ' + this.name + '. Автор: ' + this.creator + '. Оставшееся время: ' + this.time + ' мин.');
-            if ( this.time <= 0 ) {
-                $('.finish').trigger('click');
-            }
-        }, 60000);
+        if ( this.time === null ) return;
+        let timerId = setInterval(() => {
+            this.time--;
+            localStorage.setItem(this.testID, JSON.stringify({ answers: this.answers, switch: this.switch }));
+            $('.info').html('Дата: ' + this.date + '. Название: ' + this.name + '. Автор: ' + this.creator + '. Оставшееся время: ' + GetMinutes(this.time) );
+        }, 1000);
+
+        setTimeout(() => {
+            this.switch = this.test.length - 1;
+            this.render();
+
+            $('.finish').trigger('click');  
+            $('.info').html('Дата: ' + this.date + '. Название: ' + this.name + '. Автор: ' + this.creator + '. Оставшееся время: ' + GetMinutes(0) );
+            clearInterval(timerId);
+        }, this.time * 1000 - 1);
     }
 
     store(){
@@ -113,7 +122,7 @@ export default class LaunchedTest {
             input(userAnswer);
 
             //store answers && switch
-            localStorage.setItem(testID, JSON.stringify({ answers: answersVal, switch: STswitchVal, time: this.time}))
+            localStorage.setItem(testID, JSON.stringify({ answers: answersVal, switch: STswitchVal}))
         }
 
         
@@ -146,6 +155,7 @@ export default class LaunchedTest {
         else if ( this.switch + 1 === this.test.length && this.switch !== 0 )
         {
             if ( this.type !== 'article' ) $('.launchTest').append(`<button class="openBut previos switch">Предыдущее задание</button><button class="openBut switch finish">Завершить тест</button>`);
+            else $('.launchTest').append(`<button class="openBut previos switch">Предыдущее задание</button>`);
         }
         else if ( this.switch === 0 && this.switch + 1 === this.test.length )
         {

@@ -12,7 +12,8 @@ import { async } from 'regenerator-runtime'
 import getVal from './module/getVal'
 import main from './module/main'
 import massage from './module/massage'
-
+import IsMobile from './module/IsMobile'
+import baseurl from './module/baseurl'
 
 
 
@@ -24,6 +25,11 @@ const editor = new Editor($('.editor'));
 
 
     $( ()=>{
+        //check type of a device
+        if ( IsMobile() === true ) {
+            alert('Создание тестов на мобильном устройстве не поддерживается.');
+            history.back();
+        }
         //close button
         $('.delete-task').css({'background-image':`url(${close})`});
         //toggle
