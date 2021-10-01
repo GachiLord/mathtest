@@ -11,6 +11,6 @@ import main from './module/main'
 
 
 
-$(async () => {
+$( () => {
         main();
 } );

@@ -33,8 +33,8 @@ export default class LaunchedTest {
 
     render(){
         //info rendeting
-        if ( this.time != undefined && this.type != 'Article' ) $('.info').append('Дата: ' + this.date + '. Название: ' + this.name + '. Автор: ' + this.creator + '. Оставшееся время: ' + GetMinutes(this.time) );
-        else $('.info').append('Дата: ' + this.date + '. Название: ' + this.name + '. Автор: ' + this.creator);
+        if ( this.time != undefined && this.type != 'Article' ) $('.info').append('Дата: ' + this.date + '. Название: ' + this.name + '. Автор: ' + this.creator + '. Прогресс: ' + (this.switch + 1) + '/' + this.test.length + '. Оставшееся время: ' + GetMinutes(this.time) );
+        else $('.info').append('Дата: ' + this.date + '. Название: ' + this.name + '. Автор: ' + this.creator + '. Прогресс: ' + (this.switch + 1) + '/' + this.test.length);
         
         //test rendering
         if (IsMobile() === true) $('.launchTest').css('margin-top',10);

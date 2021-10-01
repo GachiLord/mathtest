@@ -18,6 +18,7 @@ import { async } from 'regenerator-runtime/runtime'
 
 
 $( async () => {
+    main();
     //get test from server
     let test;
     let Lchtest;
@@ -50,9 +51,6 @@ $( async () => {
 
 } ); 
 
-$( () => {
-    main();
-});
 
 
 

@@ -10,7 +10,7 @@ import main from './module/main';
 
     //register
     $( async () => {
-        
+        main(); 
 
         $('.openBut').on('click', async ()=>{
             let response = await post('Auth','register',  JSON.stringify( { login: $('#login').val(), password: $('#password').val(), name:$('#name').val() } ) );
@@ -25,7 +25,7 @@ import main from './module/main';
                 }, 2000);
             }
         } );
-        main(); 
+        
     } );
 
 

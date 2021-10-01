@@ -15,8 +15,10 @@ let baseurl = document.location.host;
 
 
 
+
 $( async () => {
-    
+    main();
+
 
     if ( url.includes(`${baseurl}/profile`) ){
         //get profile from server
@@ -92,7 +94,5 @@ $( async () => {
             $('table').append(element);
         });
     }
-
-
-    main();
+    
 } );

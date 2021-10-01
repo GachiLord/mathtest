@@ -11,14 +11,13 @@
     }
     //webpack's dev mode
     file_put_contents("{$project}webpack.config.js", file_get_contents("{$project}devtool/WebPackProd.js") );
-    //build
-    shell_exec("cd $project; npm run build");
-    //delete map.js
+    //delete
     $map = scandir("{$project}app");
     foreach ( $map as $i ) {
-        if ( !preg_match('/map/', $i) ) continue;
         shell_exec("rm '{$project}app/'$i");
     }
+    //build
+    shell_exec("cd $project; npm run build");
     //export zip
     shell_exec("tar -cvf mathtest.tar {$project}app {$project}server");
     $command = "tar -rvf mathtest.tar";

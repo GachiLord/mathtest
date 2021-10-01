@@ -7,6 +7,7 @@ export default async function (){
     //menu
     $('header').append( await post('Info','menu') );
     //buttonEventListener
+    $( () => {
     $('[controller]').on('click', async function () {
         if ( $(this).attr('class') === 'quit' ) location.assign(baseurl)
         else location.reload();
@@ -15,5 +16,7 @@ export default async function (){
                     $('.error').animate({opacity:0})
                     $('.massage').animate({opacity:0})
             }, 2000); 
-    });    
+    });  
+    } );
+  
 }

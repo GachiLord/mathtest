@@ -20,6 +20,7 @@ class Profile extends CONTROLLER
     public function DeleteOwn()
     {
         $user = \app\model\Auth\Auth::GetPerson();
+        $user->forget();
         $this->view->massage($user->delete());
     }
     public function delete()

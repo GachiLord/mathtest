@@ -25,6 +25,8 @@ const editor = new Editor($('.editor'));
 
 
     $( ()=>{
+        main();
+
         //check type of a device
         if ( IsMobile() === true ) {
             alert('Создание тестов на мобильном устройстве не поддерживается.');
@@ -113,8 +115,4 @@ const editor = new Editor($('.editor'));
 
             });
         }
-    } );
-
-    $( () => {
-        main();
     } );
