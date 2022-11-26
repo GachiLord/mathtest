@@ -3,9 +3,8 @@
 namespace app\model\Data;
 
 use app\model\Auth\Auth;
+use app\model\lib\ContentUtils;
 use app\model\Storage\BD;
-use app\model\Validation;
-
 
 
 class Article extends DATA
@@ -33,18 +32,19 @@ class Article extends DATA
     {
         $bd = new BD('content');
 
-        $arr['name'] = Validation::TextWithoutTags($arr['name']);
+        $arr['name'] = ContentUtils::GetTextWithoutTags($arr['name']);
         $arr['type'] = self::GetType($arr['answers']);
         $arr['answers'] = json_encode($arr['answers']);
-        foreach ( $arr['text'] as &$item ) { $item = Validation::TextWithTags($item); }
+        foreach ( $arr['text'] as &$item ) { $item = ContentUtils::GetTextWithTags($item); }
         $arr['text'] = json_encode($arr['text']);
         $arr['date'] = date('m.d.y');
         $arr['owner'] = Auth::IsLogIn() ? Auth::GetPerson()->id : null;
         $arr['publicid'] = self::GetPublicId();
         $arr['visibility'] = $arr['show'];
+        $arr['description'] = !empty($arr['description']) ? ContentUtils::GetTextWithoutTags($arr['description']) : 'Описание отсутствует';
         $arr['time'] = $arr['time'] == "" ? null : $arr['time'];
 
-        $bd->create($arr, 'name, visibility, type, answers, text, date, owner, publicid, time');
+        $bd->create($arr, 'name, visibility, type, answers, text, date, owner, publicid, time, description');
         return $arr['publicid'];
 
     }
@@ -55,13 +55,13 @@ class Article extends DATA
         $read = $read->FindByProperty($property, $value);
 
         foreach ($read as &$item) unset($item['answers']);
-        return Validation::GetOwnerInfo($read);
+        return ContentUtils::GetOwnerInfo($read);
     }
 
-    public static function ReadAcId($Min, $Max):array
+    public static function ReadAcId($Min = 0, $Max = 20):array
     {
         $read = new BD('content');
-        return Validation::GetOwnerInfo($read->FindAcId($Min, $Max, 'where visibility = 1'));
+        return ContentUtils::GetOwnerInfo($read->FindAcId($Min, $Max, 'where visibility = 1'));
     }
 
     public static function GetArticleCount():int
@@ -88,7 +88,8 @@ class Article extends DATA
         $arr['answers'] = json_encode($arr['answers']);
         $arr['visibility'] = $arr['show'];
         $arr['time'] = $arr['time'] == "" ? null : $arr['time'];
-        return $this->storage->update($this->id, $arr, 'name, visibility, type, answers, text, time');
+        $arr['description'] = ContentUtils::GetTextWithoutTags($arr['description']);
+        return $this->storage->update($this->id, $arr, 'name, visibility, type, answers, text, time, description');
     }
 
     protected static function GetType(array $arr):string|null
@@ -112,6 +113,12 @@ class Article extends DATA
         $id = rand(0,1000000);
         if ( !$bd->RowExists('publicid', $id) ) return $id;
         else return self::GetPublicId();
+    }
+
+    public static function GetByOwnerAcId(int $Min, int $Max, int|string $owner):array
+    {
+        $read = new BD('content');
+        return ContentUtils::GetOwnerInfo($read->FindAcId($Min, $Max, "where owner = $owner"));
     }
 
 }

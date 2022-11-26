@@ -7,13 +7,12 @@ module.exports = {
   mode: 'development',
   devtool: 'source-map',
   entry: {
-    index:'./src/js/index.js',
-    createTest:'./src/js/createTest.js',
-    launchTest:'./src/js/launchTest.js',
-    contact:'./src/js/contact.js',
-    login:'./src/js/login.js',
-    register:'./src/js/register.js',
-    show:'./src/js/showContent.js'
+    index:'./client/js/index.js',
+    editor:'./client/js/editor.js',
+    launch:'./client/js/launch.js',
+    login:'./client/js/login.js',
+    register:'./client/js/register.js',
+    profile:'./client/js/profile.js'
   },
   output: {
     path: path.resolve(__dirname, 'app'),
@@ -29,6 +28,10 @@ module.exports = {
         test: /\.(png|jpe?g|gif|svg)$/i,
         use: ['file-loader'],
       },
+      {
+        test: /\.(html|htm)$/i,
+        loader: "html-loader",
+      }
     ]
   }
   

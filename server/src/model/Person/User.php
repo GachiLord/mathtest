@@ -4,10 +4,13 @@ namespace app\model\Person;
 
 
 use app\model\Data\DATA;
+use app\model\lib\ContentUtils;
 use app\model\Storage\BD;
-use app\model\Validation;
 
 
+/**
+ * Class for User. It is used to auth, change pass etc.
+ */
 class User extends DATA {
     protected string $password;
     protected string $login;
@@ -30,6 +33,9 @@ class User extends DATA {
         return password_verify($pass, $this->password);
     }
 
+    /**
+     * Returns hash using password_hash()
+     */
     static public function GetHash(string $pass):string
     {
         return password_hash($pass, PASSWORD_DEFAULT);
@@ -39,9 +45,10 @@ class User extends DATA {
     {
         $bd = new BD('users');
         if ( $bd->RowExists('login', $arr['login']) ) return false;
+        if ( empty($arr['login']) or empty($arr['name']) or empty($arr['password']) ) return false;
 
-        $arr['login'] = Validation::TextWithoutTags($arr['login']);
-        $arr['name'] = Validation::TextWithoutTags($arr['name']);
+        $arr['login'] = ContentUtils::GetTextWithoutTags($arr['login']);
+        $arr['name'] = ContentUtils::GetTextWithoutTags($arr['name']);
         $arr['password'] = self::GetHash($arr['password']);
         $arr['role'] = 'User';
         return $bd->create($arr, 'name,login,password, role');
@@ -63,11 +70,17 @@ class User extends DATA {
             if ( $arr['name'] !== '' && $arr['password'] === '' ) $selection .= 'name';
             if ( $arr['name'] !== '' && $arr['password'] !== '' ) $selection .= 'name, password';
 
-            $arr['name'] = Validation::TextWithoutTags($arr['name']);
+            $arr['name'] = ContentUtils::GetTextWithoutTags($arr['name']);
             $arr['password'] = self::GetHash($arr['password']);
             return $this->storage->update($this->id, $arr, $selection);
         }
         else return false;
+    }
+
+    public static function userExists(string $login):bool
+    {
+        $bd = new BD('users');
+        return $bd->RowExists('login', $login);
     }
 }
 

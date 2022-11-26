@@ -116,4 +116,13 @@ class BD implements BdStorage
     {
         return R::count($this->table, $sql, $arr);
     }
+
+    public function GetAverageByProperty(string $property, string $value, string $field):int
+    {
+        $beans = $this->FindByProperty($property, [$value]);
+        $sum = 0;
+
+        foreach ($beans as $bean) $sum += $bean[$field];
+        return $sum / (count($beans) > 0 ? count($beans): 1);
+    }
 }

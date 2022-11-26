@@ -4,7 +4,7 @@ namespace app\controller;
 
 use app\model\Data\Stat;
 use app\model\Data\Timer;
-use app\model\Validation;
+use app\model\lib\ContentUtils;
 
 class Test extends CONTROLLER
 {
@@ -26,20 +26,19 @@ class Test extends CONTROLLER
 
     public function get()
     {
-
         foreach ( \app\model\Data\Test::read('publicid', [$this->params['publicid']]) as $item )
         {
-            $auth = \app\model\Auth\Auth::GetAuthorization();
+            $test = new \app\model\Data\Test('publicid', $this->params['publicid']);
             if ( !empty($item['time']) ) {
-                $auth->CreateTimerOrDie($this->params['publicid'], $item['time']);
+                $test->CreateTimerOrDie($this->params['publicid'], $item['time']);
                 $timer = new Timer($this->params['publicid']);
-                $item['time'] = $timer->TimeLeft();
+                $item['time'] = $timer->GetTimeLeft();
             }
 
 
             $item = $item->export();
-            $item = Validation::GetOwnerInfo([$item]);
-            $item = Validation::DeleteSystemInfo($item);
+            $item = ContentUtils::GetOwnerInfo([$item]);
+            $item = ContentUtils::DeleteSystemInfo($item);
 
             echo json_encode($item[0]);
         }

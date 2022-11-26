@@ -3,10 +3,11 @@
 namespace app\model\Auth;
 
 
-use app\model\Data\Timer;
 use app\model\Person\Guest;
 use app\model\Person\User;
+use app\view\lib\UrlUtils;
 use app\view\View;
+use JetBrains\PhpStorm\NoReturn;
 use JetBrains\PhpStorm\Pure;
 
 
@@ -16,6 +17,7 @@ class Auth
     protected array $forbidden;
     protected View $view;
     protected Session $session;
+
 
     public function __construct($person)
     {
@@ -36,6 +38,11 @@ class Auth
         return $this->$name;
     }
 
+
+    /**
+     * Checking of access for current controller and its methods.
+     * Redirect if there is no access
+     */
     public function CheckAccess($controller, $action):bool
     {
         if ( $controller === 'CONTROLLER' ) goto error;
@@ -44,15 +51,17 @@ class Auth
             if ( $action === $item ) goto error;
         }
         access:return true;
-        error:$this->view->massage(false, 'null','Ошибка доступа');return false;
+        error:Auth::redirect(); return false;
     }
 
-    public function remember(){
+    public function remember(): void
+    {
         $this->session::start();
         $this->session->create( 'user',$this->person);
     }
 
-    public function forget(){
+    public function forget(): void
+    {
         $this->session::stop();
     }
 
@@ -60,36 +69,53 @@ class Auth
     {
         return !Session::isEmpty('user');
     }
+
+    /**
+     * @return Auth object or Guest object
+     */
     public static function GetAuthorization():Auth
     {
         $session = new Session();
         return self::IsLogIn() ? new self( new User ($session->read('user')->login) ) : new self(new Guest());
     }
-    public function sync()
+
+    /**
+     * @return void updates session
+     */
+    public function sync(): void
     {
         $session = new Session();
         $session->update('user', new User( $this->person->login ));
     }
 
-    #[Pure] public static function GetPerson():object
+    /**
+    * return User obj or null
+    */
+    #[Pure] public static function GetPerson():object|null
     {
         $session = new Session();
         return $session->read('user');
     }
 
-    public function IsOwn($content):bool
+    /**
+     * @param $content mixed works with User|Test|Article beans
+     * @return bool if User`s id and content`s own are equal
+     */
+    public function IsOwn(mixed $content):bool
     {
         if ( empty($content['owner']) ) return false;
         return $this->person->id === $content['owner'];
     }
-    public function CreateTimerOrDie(int $publicid, $MaxTime)
+
+    /**
+     * Redirects and stops all operations. Use before any echo!!!
+     * @param string $url only relative path required
+     */
+    #[NoReturn] public static function redirect(string $url = ""): void
     {
-            if ( !self::IsLogIn() ) die(json_encode(['NotAuthed']));
-            if ( !Timer::IsBegan($publicid) ) Timer::create(['publicid'=>$publicid, 'time'=>$MaxTime]);
-            else {
-                $timer = new Timer($publicid);
-                if ( $timer->IsLate() ) die(json_encode(['late']));
-        }
+        if ($url === "") $url = UrlUtils::GetBaseUrl() . '/404';
+        header("Location: {$url}");
+        die();
     }
 
 }

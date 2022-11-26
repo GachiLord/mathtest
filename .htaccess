@@ -1,18 +1,8 @@
 RewriteEngine On
-RewriteRule ^launch/([^/\.]+)/?$ launch.htm [L]
-RewriteRule ^profile/([^/\.]+)/?$ show.htm [L]
-RewriteRule ^edit/([^/\.]+)/?$ create.htm [L]
-RewriteRule ^show/([^/\.]+)/?$ show.htm [L]
-RewriteRule ^edit/([^/\.]+) create.htm[L]
-RewriteRule ^launch/([^/\.]+) launch.htm[L]
-RewriteRule ^profile/([^/\.]+)/?$ show.htm [L]
-RewriteRule ^my?$ show.htm [L] 
-RewriteRule ^statistic?$ show.htm [L]
-RewriteRule ^results/([^/\.]+)/?$ show.htm [L]
-
 
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^([^.]+)$ $1.htm [NC,L]
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^.* /server/src/controller/index.php [L,QSA]
 
 <ifModule mod_headers.c>
 Header set Connection keep-alive

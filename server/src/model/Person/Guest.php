@@ -3,6 +3,9 @@
 namespace app\model\Person;
 
 
+/**
+ * Class for Auth::CheckAccess() compatibility
+ */
 class Guest{
     protected string $role;
 

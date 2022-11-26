@@ -5,6 +5,9 @@ namespace app\model\Data;
 use app\model\Auth\Auth;
 use app\model\Storage\BD;
 
+/**
+ * Class for timer table. It is required for temporary tests.
+ */
 class Timer extends DATA
 {
 
@@ -48,10 +51,18 @@ class Timer extends DATA
     {
         return $this->storage->update($this->id, $arr, 'begin, end, timerid');
     }
+
+    /**
+     * Checks user`s test time is over
+     */
     public function IsLate():bool
     {
         return time() > $this->MaxTime + 20;
     }
+
+    /**
+     * Checks timer existing for authed user.
+     */
     public static function IsBegan($publicid):bool
     {
         $UserId = Auth::GetPerson()->id;
@@ -60,12 +71,17 @@ class Timer extends DATA
         $bd = new BD('timer');
         return $bd->RowExists('timerid', "{$UserId}{$TestId}");
     }
+
+    /**
+     * be carefully using it.
+     */
     public static function DeleteByPublicId($publicid):bool
     {
         $bd = new BD('timer');
         return $bd->execute( 'DELETE FROM timer WHERE testid =?', [$publicid] );
     }
-    public function TimeLeft():int
+
+    public function GetTimeLeft():int
     {
         return $this->MaxTime - time();
     }

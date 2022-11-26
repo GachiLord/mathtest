@@ -35,6 +35,6 @@ class Auth extends CONTROLLER
 
     public function register(){
         if ( User::create($this->params) ) $this->login();
-        else $this->view->massage(false, '', 'Логин уже существует');
+        else $this->view->massage(false, '', 'Логин уже существует или поля не заполнены');
     }
 }

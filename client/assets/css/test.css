@@ -1,0 +1,132 @@
+body{
+    text-align: center;
+}
+
+
+
+    /*editor*/
+.editblock{
+    background: #f2f2f2;
+    display: block;
+    margin: 30px 50px;
+    width: 350px;
+    box-shadow: 1px 1px 2px #ddd;
+    text-align: left;
+    position: fixed;
+    z-index: 2;
+    padding: 10px;
+    border-radius: 5px;
+}
+.delete-task{
+    width: 48px;
+    height: 48px;
+    position: absolute;
+    left: 425px;
+    top: -15px;
+
+}
+.task-wrap{
+    position:relative;
+    display: inline;
+}
+
+.task{
+    white-space: pre-wrap;
+    tab-size: 3;
+    margin: 30px auto;
+    max-width: 800px;
+    text-align: center;
+    font-size: large;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+    box-shadow: 1px 1px 2px #ddd;
+    outline: none;
+    padding: 50px;
+}
+
+.switch{
+    margin: 5px;
+	padding-left: 20px;
+	padding-right: 20px;
+	padding-bottom: 10px;
+	padding-top: 10px;
+	background-color: #00AEFA;
+	color: white;
+	margin-top: 20px;
+	border: none;
+	outline: none;
+	border-radius: 5px;
+}
+.standartinput{
+    min-height: 24px;
+    padding: 1px 3px;
+    border: 1px solid #d6d6d6;
+    margin: 3px;
+    outline: none;
+}
+.standartinput:hover{
+    border: 1px solid #00AEFA;
+}
+.button{
+	display: inline-block;
+    box-sizing: border-box;
+    height: 32px;
+    padding: 0 16px;
+    line-height: 32px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    background-color: #f2f2f2;
+    color: #333;
+    border: 1px solid #d0cfcf;
+    outline: none;
+    margin-bottom: 3px;
+}
+.button:hover{
+    background: #00affa0c;
+    border: 1px solid #00AEFA;
+    color: #303036e3;
+}
+.font{
+    font-family: Georgia, sans-serif;
+	font-weight: 400;
+	line-height:1.7;
+}
+
+
+        /*TASKS*/
+
+    /*text question*/
+.question{
+    color: black;
+	background-color: #DDDFE0;
+	border: none;
+	border-radius: 6px;
+	outline: none;
+    margin: 3px;	
+}
+
+
+
+
+
+
+
+
+    /*launchTest*/
+.img {
+	padding-bottom: 20px;
+	padding-top: 10px;
+}
+.launchTest{
+    font-family: Georgia, sans-serif;
+	font-weight: 400;
+	line-height:1.7;
+    font-size: large;
+    margin: auto;
+    margin-top: 100px;
+}
+.info{
+    margin-bottom: 30px;
+    margin: auto;
+}

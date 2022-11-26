@@ -2,6 +2,9 @@
 
 namespace app\model\Storage;
 
+/**
+ * Interface for session class
+ */
 interface AuthStorage
 {
     public function create( string|int $property, object|array $arr ):bool;

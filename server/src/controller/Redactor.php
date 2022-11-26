@@ -6,6 +6,7 @@ use app\model\Auth\Auth;
 use app\model\Data\Article;
 use app\model\Data\Test;
 use app\model\Data\Timer;
+use app\view\View;
 
 class Redactor extends CONTROLLER
 {
@@ -16,7 +17,11 @@ class Redactor extends CONTROLLER
 
     public function get()
     {
-        foreach ( Test::ReadOwn('publicid', [$this->params['publicid']]) as $item ) echo json_encode($item);
+        foreach ( Test::ReadOwn('publicid', [$this->params['publicid']]) as $item )
+        {
+            if (empty($item) or !Auth::IsLogIn()) Auth::redirect();
+            echo json_encode($item);
+        }
 
     }
 
@@ -37,6 +42,6 @@ class Redactor extends CONTROLLER
         $content = new Article('publicid', $this->params['publicid']);
         $auth = Auth::GetAuthorization();
         if ( $auth->IsOwn(!$auth->IsOwn($content->table) && $auth->person->role !== 'Admin') ) $this->view->massage(false );
-        $this->view->massage(Timer::DeleteByPublicId($this->params['publicid']), 'Готово', 'Никто еще не прошел тест');
+        $this->view->massage(Timer::DeleteByPublicId($this->params['publicid']), 'Готово', 'Никто еще не прошел тест или отсутствует ограничение по времени');
     }
 }
